@@ -20,6 +20,8 @@ Some limits you must be aware of:
 # Installation & local execution
 
 If you have any question or you find a bug, please, let me know. If you want to contribute, go ahead and do it.
+If you want to do something similar with that code, DM me for help; especially if you belong to an
+underrepresented group in technology. I might not answer, but if I have time, I am willing to help.
 
 You can adapt this code to use any database or server. In my case, I use firebase,
 so this is a guide to make it work in firebase.
