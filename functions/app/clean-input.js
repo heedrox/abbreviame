@@ -11,5 +11,5 @@ const getFirstWord = (username) => {
 
 const removeAt = (username) => username.replace("@", "");
 
-exports.cleanUsername = (username) =>
+exports.cleanInput = (username) =>
   removeAt(limitLength(getFirstWord(username)));

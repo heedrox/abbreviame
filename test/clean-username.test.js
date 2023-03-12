@@ -1,9 +1,9 @@
-const {cleanUsername} = require("../functions/app/clean-username");
+const {cleanInput} = require("../functions/app/clean-input");
 
 
-console.log(cleanUsername('hola que tal estas'))
-console.log(cleanUsername('@itorv'))
-console.log(cleanUsername('itorvitorvitorvitorvitorvitorvitor' +
+console.log(cleanInput('hola que tal estas'))
+console.log(cleanInput('@itorv'))
+console.log(cleanInput('itorvitorvitorvitorvitorvitorvitor' +
     'vitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitor' +
     'vitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitor' +
     'vitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitorvitor' +

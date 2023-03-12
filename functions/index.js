@@ -1,8 +1,10 @@
 const functions = require("firebase-functions");
 const {AbbreviameJob} = require("./app/abbreviame-job");
-const {UserNotFoundException} = require("./app/twitter/user-not-found-exception");
-const {TooFewTweetsException} = require("./app/twitter/too-few-tweets-exception");
-const {cleanUsername} = require("./app/clean-username");
+const {UserNotFoundException} =
+    require("./app/twitter/user-not-found-exception");
+const {TooFewTweetsException} =
+    require("./app/twitter/too-few-tweets-exception");
+const {cleanInput} = require("./app/clean-input");
 const {getCache} = require("./app/cache/get-cache");
 const {setCache} = require("./app/cache/set-cache");
 const {TwitterRateLimitException} =
@@ -53,7 +55,6 @@ const doTheJob = async (
       });
       response.status(529).send("{ error: \"twitter-rate-limit\" }");
     } else {
-      console.log(JSON.stringify(error.message));
       functions.logger.error({
         username,
         state: "ERROR",
@@ -68,11 +69,11 @@ const doTheJob = async (
 
 exports.abbreviameLimited =
     functions.https.onRequest(async (request, response) => {
-      const username = cleanUsername(request.query.username.trim());
+      const username = cleanInput(request.query.username.trim());
       const rawApiKey = request.headers["x-openai-key"] ?
           request.headers["x-openai-key"].trim() :
           "";
-      const queryApiKey = cleanUsername(rawApiKey ? rawApiKey : "");
+      const queryApiKey = cleanInput(rawApiKey ? rawApiKey : "");
       const openAiKey = queryApiKey ? queryApiKey : process.env.OPENAI_API_KEY;
       const language = request.query.lang;
       const anotherQuestion = request.query.anotherQuestion;
