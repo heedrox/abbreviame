@@ -1,4 +1,6 @@
-# Abbreviame
+<p align="center">
+ <img src="https://github.com/dianait/abbreviame/blob/main/public/logo.png" width="50%" alt="Logo de abbreviame" />
+</p>
 
 Originally: A proof of concept to know if an AI can answer any question about any user reading all their timeline.
 
