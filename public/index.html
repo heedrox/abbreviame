@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="abbrevia.me" />
+    <meta property="og:description" content="abbreviate users' information from their latest tweets." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <title>abbrevia.me: abbreviate users' information from their latest tweets.</title>
+    <style lang="text/css">
+      .container {
+        width: auto;
+        max-width: 680px;
+        padding: 0 15px;
+      }
+      h2 { margin-top: 100px }
+      body.light {
+        background-color: var(--bs-light);
+        color: var(--bs-dark);
+      }
+
+      body.dark {
+        background-color: var(--bs-dark);
+        color: var(--bs-light);
+      }
+
+      body.dark .card-header {
+        background-color: var(--bs-gray);
+        color: var(--bs-dark);
+      }
+
+      body.light .card-header {
+        background-color: var(--bs-light);
+        color: var(--bs-dark);
+      }
+    </style>
+    <script>
+      function toggleMode() {
+        $([".light [class*='-light']", ".dark [class*='-dark']"]).each((i,ele)=>{
+          $(ele).toggleClass('bg-light bg-dark')
+          $(ele).toggleClass('text-light text-dark')
+          $(ele).toggleClass('navbar-light navbar-dark')
+        })
+        $('body').toggleClass('light dark')
+      }
+
+      function loading() {
+        $('#getDescriptionForm').hide()
+        $('#loading').show()
+        $('#resultCard').hide()
+      }
+      function loaded() {
+        $('#getDescriptionForm').hide()
+        $('#loading').hide()
+        $('#resultCard').show()
+      }
+      function restartForm() {
+        $('#getDescriptionForm').show()
+        $('#loading').hide()
+        $('#resultCard').hide()
+      }
+
+      function dataURLtoFile(dataurl, filename) {
+        var arr = dataurl.split(","),
+                decodedData = atob(arr[1]),
+                lengthOfDecodedData = decodedData.length,
+                u8array = new Uint8Array(lengthOfDecodedData);
+        while (lengthOfDecodedData--) {
+          u8array[lengthOfDecodedData] = decodedData.charCodeAt(lengthOfDecodedData);
+        }
+        return new File([u8array], filename, { type: 'image/png' });
+      };
+      function shareFile(file, title, text) {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator
+                  .share({
+                    files: [file],
+                    title,
+                    text
+                  })
+                  .then(() => console.log("Share was successful."))
+                  .catch((error) => console.log("Sharing failed", error));
+        } else {
+          console.log(`Your system doesn't support sharing files.`);
+        }
+      };
+      function share() {
+        html2canvas(document.querySelector('#abbreviamePage'))
+                .then((canvas) => {
+                  const image = canvas.toDataURL('image/png')
+                  const file = dataURLtoFile(image, 'abbreviame.png')
+                  if (navigator.share) {
+                    shareFile(file, "abbrevia.me", "https://abbrevia.me")
+                  } else {
+                    window.open(image, '_blank')
+                  }
+                })
+      }
+
+      function getDescription() {
+        const SERVER = 'https://us-central1-abbreviame.cloudfunctions.net/abbreviameLimited'
+        const username = $('#twitterUsername').val().trim()
+        const lang = $('input[name=lang]:checked').val()
+
+        if (username === '') {
+          $('#twitterUsername').focus()
+          return
+        }
+        loading()
+         $.ajax({
+            url:`${SERVER}?username=${username}&lang=${lang}`,
+            headers: {'x-openai-key': $('#openAiKey').val() },
+          })
+        .then((res) => {
+          loaded()
+          $('#resultUsername').html(res.username)
+          $('#resultDescription').html(res.answer)
+        }
+        )
+        .catch((error) => {
+          if (error.status === 404) {
+            alert('User not found')
+          } else if (error.status === 406) {
+            alert('User has too few tweets. I cannot process it, sorry.')
+          } else if (error.status === 529) {
+            if (error.responseJSON.error === 'daily-quota') {
+              alert('The limit of free requests for today is over. Please, use your own OpenAI API key. Thanks for understanding.');
+            } else {
+              alert('I\'m making too many requests to twitter. Please, try again in a few minutes. Thanks for all the support and love.');
+            }
+
+          } else {
+            alert('I\'m having too many requests. Please, try again in a few minutes. Thanks for all the support and love.')
+          }
+          restartForm()
+          $('#resultUsername').html('')
+          $('#resultDescription').html('')
+        })
+      }
+
+    </script>
+  </head>
+  <body class="d-flex flex-column h-100 light">
+  <nav class="navbar fixed-top navbar-light bg-light px-3">
+    <h1 class="navbar-brand">abbrevia.me</h1>
+    <div class="nav-item">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleMode()">
+        <label class="form-check-label text-muted" for="flexSwitchCheckDefault">Dark</label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Begin page content -->
+  <main >
+    <div class="container" id="abbreviamePage">
+      <h2>abbrevia.me</h2>
+      <p class="lead">Get an abbreviated description made by an AI of you based on your latest tweets.
+        What do other users perceive from what you tweet?
+        <span class="fst-italic fw-lighter fs-6">(you can also get descriptions from other users)</span>
+      </p>
+     <p class="alert alert-danger" role="alert">📢 &nbsp;Abbrevia.me is closing (more or less). <a href="https://itortv.medium.com/abbrevia-me-is-closing-here-is-why-c75ab02f0bb8" class="alert-link" target="_blank">Read this post to know why.</a> Thanks for the fun ride!</p>
+
+      </p>
+      <p class="alert alert-info" role="alert">🐵 This project was kindly supported by <a href="https://www.getmanfred.com" target="_blank">getmanfred.com</a>.
+        Thousands of software builders share, compare, and grow their careers with Manfred.
+        <b>Thanks for helping me grow my career</b> supporting this project.
+      </p>
+
+      <form onsubmit="getDescription(); return false;" id="getDescriptionForm">
+        <div class="mb-3">
+          <label for="twitterUsername" class="form-label">Twitter username</label>
+          <input type="text" class="form-control" id="twitterUsername" placeholder="Enter a username (no @ required)">
+        </div>
+        <div class="mb-3">
+          <label for="openAiKey" class="form-label">OpenAI API key <a href="#" data-bs-toggle="modal" data-bs-target="#openAiModal">how do I get this?</a></label>
+          <input type="text" class="form-control" id="openAiKey" placeholder="I promise I do not store this anywhere in the servers">
+        </div>
+        <div class="mb-3">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="languageEnglish" value="en" checked name="lang">
+            <label class="form-check-label" for="languageEnglish">English</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="languageSpanish" value="es" name="lang">
+            <label class="form-check-label" for="languageSpanish">Spanish</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Get description</button>
+      </form>
+      <p class="text-muted mt-2" id="loading" style="display:none">Loading...</p>
+      <div class="card mt-2 bg-light" id="resultCard" style="display:none">
+        <div class="card-header fw-bold">
+          <span id="resultUsername">Featured</span>
+        </div>
+        <div class="card-body">
+          <p class="card-text" id="resultDescription"></p>
+          <button type="button" class="btn btn-primary" onclick="restartForm()">Get another description</button>
+          <button type="button" class="btn btn-secondary" onclick="share()">
+            Share
+          </button>
+        </div>
+      </div>
+      <div class="modal fade" id="openAiModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">About the OpenAI Api Key</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>As I cannot provide this service free because of high costs, I offer two options:
+              </p>
+              <ol><li>Use your own OpenAI API key. OpenAI usually provides some free credits at first.
+                  <a href="https://www.windowscentral.com/software-apps/how-to-get-an-openai-api-key" target="_blank">
+                    You can find how to get one, here.
+                  </a>
+              </li>
+                <li class="mt-2">You can still try your luck every day, although there is a limit of
+                  500 requests per day (that costs me 3 $ / day).
+                </li>
+              </ol>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood, thanks</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 text-muted alert alert-secondary" role="alert">Made with ❤️ and care, by <a href="https://twitter.com/itortv" target="_blank">@itortv</a>. Follow
+        me for some more crazy pet projects, or even provide feedback!</div>
+    </div>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <script src="html2canvas.js"></script>
+  </body>
+</html>

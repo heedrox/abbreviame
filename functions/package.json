@@ -1,0 +1,28 @@
+{
+  "name": "abbreviame",
+  "description": "Get an abbreviated description made by an AI of you based on your latest tweets. What do other users perceive from what you tweet?",
+  "scripts": {
+    "lint": "eslint . --fix",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "twitter": "^1.7.1",
+    "firebase-functions": "^3.18.0",
+    "firebase-admin": "^10.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^0.2.0"
+  },
+  "private": true
+}
