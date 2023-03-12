@@ -73,7 +73,7 @@ The rest of this, I leave it to you!
 
 # License
 
-MIT License. Read LICENSE.md.
+MIT License. Read [LICENSE.md](LICENSE.md)
 
 It is not mandatory to notify me if you use this code, but it would be great to know that you use it.
 
