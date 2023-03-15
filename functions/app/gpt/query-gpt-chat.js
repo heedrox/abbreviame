@@ -27,7 +27,20 @@ const queryGpt = async (prompt, openAiKey) => {
   if (!response.ok) {
     throw response;
   }
-  return (await response.json()).choices[0].message.content;
+
+  const responseJson = await response.json();
+  const messageContent = responseJson.choices[0].message.content;
+
+  // Check if the role system instructions are leaked to the user
+  const messageWords = messageContent.toLowerCase().split(/\W+/);
+  const instructionWords = ROLE_SYSTEM_INSTRUCTIONS.toLowerCase().split(/\W+/);
+  const commonWords = instructionWords.filter(word => messageWords.includes(word));
+  const percentageMatch = commonWords.length / instructionWords.length;
+  if (percentageMatch >= 0.5) {
+    return "Something went wrong.";
+  }
+
+  return messageContent;
 };
 
 exports.queryGpt = queryGpt;
